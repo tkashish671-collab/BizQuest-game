@@ -1,0 +1,445 @@
+script.js
+
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged
+} from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+
+let traits = {
+  E: 0,
+  I: 0,
+  S: 0,
+  N: 0,
+  T: 0,
+  F: 0,
+  J: 0,
+  P: 0
+};
+
+(() => {
+  // Replace this with your own Firebase config.
+  const firebaseConfig = {
+    apiKey: 'YOUR_API_KEY',
+    authDomain: 'YOUR_AUTH_DOMAIN',
+    projectId: 'YOUR_PROJECT_ID'
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  const screens = {
+    welcome: document.getElementById('welcome-screen'),
+    login: document.getElementById('login-screen'),
+    map: document.getElementById('map-screen'),
+    quiz: document.getElementById('quiz-screen'),
+    result: document.getElementById('result-screen')
+  };
+
+  const startBtn = document.getElementById('start-btn');
+  const googleLoginBtn = document.getElementById('google-login-btn');
+  const loginStatus = document.getElementById('login-status');
+  const nameModal = document.getElementById('name-modal');
+  const nameInput = document.getElementById('player-name-input');
+  const nameSaveBtn = document.getElementById('name-save-btn');
+  const greeting = document.getElementById('player-greeting');
+  const levelsContainer = document.getElementById('levels-container');
+  const mapProgressFill = document.getElementById('map-progress-fill');
+  const mapHint = document.getElementById('map-hint');
+  const quizLevelTitle = document.getElementById('quiz-level-title');
+  const questionCounter = document.getElementById('question-counter');
+  const questionText = document.getElementById('question-text');
+  const optionsContainer = document.getElementById('options-container');
+  const timerChip = document.getElementById('timer-chip');
+  const resultTitle = document.getElementById('result-title');
+  const resultType = document.getElementById('result-type');
+  const resultDescription = document.getElementById('result-description');
+  const traitBars = document.getElementById('trait-bars');
+  const careerList = document.getElementById('career-list');
+  const growthText = document.getElementById('growth-text');
+  const restartBtn = document.getElementById('restart-btn');
+
+  const levels = [
+    {
+      id: 1,
+      title: 'Forest of Awareness (Prelims)',
+      theme: 'Self Awareness',
+      timed: false,
+      questions: [
+        makeQuestion('At a team mixer, you usually...', ['Start conversations with everyone', 'Speak with a few familiar colleagues', 'Observe first and join when invited', 'Focus on one deep conversation'], 'E', 'I', 'I', 'I'),
+        makeQuestion('When reviewing a weekly report, you focus on...', ['Raw numbers and trends', 'Future opportunities behind data', 'The team morale behind the numbers', 'How quickly decisions can be made'], 'S', 'N', 'F', 'J'),
+        makeQuestion('A coworker asks for help on short notice. You...', ['Rearrange your schedule and help', 'Offer advice but keep your commitments', 'Ask for data before committing', 'Suggest brainstorming together'], 'F', 'J', 'T', 'N'),
+        makeQuestion('In meetings, your natural role is to...', ['Drive agenda and next steps', 'Collect practical details', 'Imagine bold possibilities', 'Read emotional tone in room'], 'J', 'S', 'N', 'F'),
+        makeQuestion('Your desk style is usually...', ['Organized with clear priorities', 'Neat enough, but flexible', 'Creative clutter with idea notes', 'Minimal with only essentials'], 'J', 'P', 'N', 'S'),
+        makeQuestion('When launching a small project, you prefer...', ['Detailed checklist and milestones', 'Quick prototype and iterate', 'Discuss user sentiment first', 'Explore unusual market angles'], 'J', 'P', 'F', 'N'),
+        makeQuestion('A networking event energizes you when...', ['You meet many new people', 'You discuss niche topics deeply', 'You gather insights quietly', 'You reconnect with trusted contacts'], 'E', 'I', 'I', 'I'),
+        makeQuestion('When giving feedback, you value...', ['Honesty and clarity', 'Encouragement and empathy', 'Documented proof points', 'Open-ended curiosity'], 'T', 'F', 'S', 'N')
+      ]
+    },
+    {
+      id: 2,
+      title: 'Valley of Decisions (Mains)',
+      theme: 'Pressure & Strategy',
+      timed: true,
+      questions: [
+        makeQuestion('A client deadline moves up by 48 hours. You...', ['Assign tasks immediately and track hourly', 'Rally everyone with motivational updates', 'Analyze bottlenecks before acting', 'Look for an innovative workaround'], 'J', 'E', 'T', 'N'),
+        makeQuestion('Your supplier fails during peak season. You...', ['Use existing backup process', 'Create a fresh partnership quickly', 'Gather team input first', 'Choose the most efficient fix'], 'S', 'N', 'F', 'T'),
+        makeQuestion('Two managers disagree publicly. You...', ['Facilitate calm dialogue', 'Enforce policy and close conflict', 'Observe patterns before intervening', 'Push for a creative compromise'], 'F', 'J', 'I', 'N'),
+        makeQuestion('A product bug appears during launch day. You...', ['Triaging with facts and root cause', 'Protect customer trust first', 'Take charge and coordinate war room', 'Pause and design long-term prevention'], 'T', 'F', 'E', 'J'),
+        makeQuestion('Your team has limited budget. You prioritize...', ['Guaranteed ROI initiatives', 'Experimental growth channels', 'Team well-being investments', 'Strict process optimization'], 'S', 'N', 'F', 'J'),
+        makeQuestion('Unexpected board questions arrive. You...', ['Answer directly with concise logic', 'Use stories to connect vision', 'Ask for a moment to think deeply', 'Refer to historical metrics'], 'T', 'N', 'I', 'S'),
+        makeQuestion('A high performer requests remote flexibility. You...', ['Apply policy equally', 'Design a tailored performance agreement', 'Discuss personal needs first', 'Pilot for a month and review'], 'J', 'P', 'F', 'N'),
+        makeQuestion('An urgent pitch is tomorrow morning. You...', ['Build clear structure tonight', 'Brainstorm novel hooks late-night', 'Get quick stakeholder feedback', 'Practice solo to refine message'], 'J', 'N', 'E', 'I')
+      ]
+    },
+    {
+      id: 3,
+      title: 'Summit of Identity (Final)',
+      theme: 'Identity & Crisis',
+      timed: false,
+      questions: [
+        makeQuestion('A profitable idea may harm a local community. You...', ['Reject and redesign responsibly', 'Proceed if legally compliant', 'Consult impacted groups first', 'Model long-term systemic effects'], 'F', 'T', 'E', 'N'),
+        makeQuestion('You must choose between speed and quality. You...', ['Favor quality with clear standards', 'Ship fast and adjust later', 'Decide based on customer sentiment', 'Run a short experiment first'], 'J', 'P', 'F', 'S'),
+        makeQuestion('Your mentor says your leadership style is too rigid. You...', ['Reflect quietly and adapt intentionally', 'Ask team for immediate feedback', 'Defend your logic with evidence', 'Try a creative leadership experiment'], 'I', 'E', 'T', 'N'),
+        makeQuestion('A teammate confesses burnout before a major release. You...', ['Rebalance workload immediately', 'Focus on deliverables first', 'Offer emotional support and flexibility', 'Document process gaps for prevention'], 'F', 'J', 'F', 'S'),
+        makeQuestion('Investors pressure you to pivot away from company values. You...', ['Hold values and explain strategic path', 'Pivot quickly to satisfy market', 'Seek nuanced middle ground', 'Delay decision until more data'], 'J', 'P', 'N', 'T'),
+        makeQuestion('A public mistake goes viral. Your first response is...', ['Issue clear accountability statement', 'Gather facts before speaking', 'Address emotional concerns openly', 'Frame it as learning journey'], 'T', 'S', 'F', 'N'),
+        makeQuestion('You inherit a divided leadership team. You...', ['Set structured decision framework', 'Host candid retreat conversations', 'Observe dynamics before deciding', 'Launch cross-team innovation sprint'], 'J', 'E', 'I', 'P'),
+        makeQuestion('Defining your legacy means...', ['Building scalable systems', 'Inspiring people to grow', 'Creating breakthrough ideas', 'Maintaining trusted stability'], 'T', 'F', 'N', 'S')
+      ]
+    }
+  ];
+
+  const state = {
+    playerName: '',
+    unlockedLevel: 1,
+    completedLevels: 0,
+    currentLevelIndex: -1,
+    currentQuestionIndex: 0,
+    timerHandle: null,
+    timerSeconds: 10
+  };
+
+  startBtn.addEventListener('click', () => switchScreen('login'));
+
+  googleLoginBtn.addEventListener('click', async () => {
+    loginStatus.textContent = 'Opening Google sign-in...';
+    try {
+      await signInWithPopup(auth, provider);
+      loginStatus.textContent = 'Login successful!';
+      openNameModal();
+    } catch (error) {
+      loginStatus.textContent = `Login failed: ${error.message}`;
+    }
+  });
+
+  nameSaveBtn.addEventListener('click', () => {
+    const name = nameInput.value.trim();
+    if (!name) {
+      nameInput.focus();
+      return;
+    }
+    state.playerName = name;
+    nameModal.classList.add('hidden');
+    greeting.textContent = `${state.playerName}, your quest awaits`;
+    renderMap();
+    switchScreen('map');
+  });
+
+  restartBtn.addEventListener('click', async () => {
+    resetTraits();
+    state.unlockedLevel = 1;
+    state.completedLevels = 0;
+    state.currentLevelIndex = -1;
+    state.currentQuestionIndex = 0;
+    stopTimer();
+    await signOut(auth);
+    loginStatus.textContent = '';
+    nameInput.value = '';
+    switchScreen('welcome');
+  });
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      return;
+    }
+    loginStatus.textContent = `Signed in as ${user.displayName || user.email}`;
+  });
+
+  function makeQuestion(prompt, optionA, optionB, optionC, optionD, traitA, traitB, traitC, traitD) {
+    return {
+      prompt,
+      options: [
+        { text: optionA, trait: traitA },
+        { text: optionB, trait: traitB },
+        { text: optionC, trait: traitC },
+        { text: optionD, trait: traitD }
+      ]
+    };
+  }
+
+  function openNameModal() {
+    nameModal.classList.remove('hidden');
+    nameInput.focus();
+  }
+
+  function switchScreen(targetKey) {
+    Object.keys(screens).forEach((key) => {
+      const screen = screens[key];
+      const isActive = key === targetKey;
+      screen.classList.toggle('active', isActive);
+      screen.setAttribute('aria-hidden', String(!isActive));
+    });
+  }
+
+  function renderMap() {
+    levelsContainer.innerHTML = '';
+
+    levels.forEach((level, index) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'level-btn';
+      button.disabled = level.id > state.unlockedLevel;
+
+      const completed = index < state.completedLevels;
+      const lockLabel = button.disabled ? '🔒 Locked' : completed ? '✅ Completed' : '🗺️ Available';
+
+      button.innerHTML = `<strong>Level ${level.id}: ${level.title}</strong><br><small>${level.theme} • ${lockLabel}</small>`;
+      button.addEventListener('click', () => startLevel(index));
+      levelsContainer.appendChild(button);
+    });
+
+    const progressPercent = (state.completedLevels / levels.length) * 100;
+    mapProgressFill.style.width = `${progressPercent}%`;
+
+    mapHint.textContent =
+      state.completedLevels === levels.length
+        ? 'All zones completed! View your destiny below.'
+        : `Complete Level ${state.unlockedLevel} to unlock the next zone.`;
+  }
+
+  function startLevel(levelIndex) {
+    state.currentLevelIndex = levelIndex;
+    state.currentQuestionIndex = 0;
+    switchScreen('quiz');
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    const level = levels[state.currentLevelIndex];
+    const question = level.questions[state.currentQuestionIndex];
+
+    if (!question) {
+      finishLevel();
+      return;
+    }
+
+    quizLevelTitle.textContent = `Level ${level.id}: ${level.title}`;
+    questionCounter.textContent = `Question ${state.currentQuestionIndex + 1} of ${level.questions.length}`;
+    questionText.textContent = question.prompt;
+    optionsContainer.innerHTML = '';
+
+    question.options.forEach((option) => {
+      const optionButton = document.createElement('button');
+      optionButton.type = 'button';
+      optionButton.className = 'option-btn';
+      optionButton.textContent = option.text;
+      optionButton.addEventListener('click', () => submitAnswer(option.trait));
+      optionsContainer.appendChild(optionButton);
+    });
+
+    if (level.timed) {
+      startTimer();
+    } else {
+      stopTimer();
+      timerChip.classList.add('hidden');
+    }
+  }
+
+  function startTimer() {
+    stopTimer();
+    state.timerSeconds = 10;
+    timerChip.classList.remove('hidden');
+    timerChip.textContent = `${state.timerSeconds}s`;
+
+    state.timerHandle = window.setInterval(() => {
+      state.timerSeconds -= 1;
+      timerChip.textContent = `${state.timerSeconds}s`;
+
+      if (state.timerSeconds <= 0) {
+        stopTimer();
+        advanceQuestion(false);
+      }
+    }, 1000);
+  }
+
+  function stopTimer() {
+    if (state.timerHandle !== null) {
+      window.clearInterval(state.timerHandle);
+      state.timerHandle = null;
+    }
+  }
+
+  function submitAnswer(traitKey) {
+    const level = levels[state.currentLevelIndex];
+    if (level.timed) {
+      stopTimer();
+    }
+    if (traits[traitKey] !== undefined) {
+      traits[traitKey] += 1;
+    }
+    advanceQuestion(true);
+  }
+
+  function advanceQuestion() {
+    state.currentQuestionIndex += 1;
+    renderQuestion();
+  }
+
+  function finishLevel() {
+    const levelNumber = state.currentLevelIndex + 1;
+    if (state.completedLevels < levelNumber) {
+      state.completedLevels = levelNumber;
+      state.unlockedLevel = Math.min(levels.length, levelNumber + 1);
+    }
+
+    if (state.completedLevels >= levels.length) {
+      renderFinalResult();
+      switchScreen('result');
+      return;
+    }
+
+    renderMap();
+    switchScreen('map');
+  }
+
+  function renderFinalResult() {
+    const type = buildMbtiType();
+    const recommendation = getCareerRecommendation(type);
+
+    resultTitle.textContent = `Congratulations, ${state.playerName}!`;
+    resultType.textContent = `Your Leadership MBTI Type: ${type} — ${recommendation.title}`;
+    resultDescription.textContent = recommendation.description;
+
+    renderTraitBars();
+
+    careerList.innerHTML = '';
+    recommendation.careers.forEach((career) => {
+      const li = document.createElement('li');
+      li.textContent = `• ${career}`;
+      careerList.appendChild(li);
+    });
+
+    growthText.textContent = recommendation.growth;
+  }
+
+  function renderTraitBars() {
+    const pairData = [
+      { left: 'E', right: 'I' },
+      { left: 'S', right: 'N' },
+      { left: 'T', right: 'F' },
+      { left: 'J', right: 'P' }
+    ];
+
+    traitBars.innerHTML = '';
+
+    pairData.forEach((pair) => {
+      const leftValue = traits[pair.left];
+      const rightValue = traits[pair.right];
+      const total = Math.max(1, leftValue + rightValue);
+      const leftRatio = leftValue / total;
+      const activeSegments = Math.round(leftRatio * 20);
+
+      const segmentsMarkup = Array.from({ length: 20 }, (_, idx) => {
+        return `<span class="segment ${idx < activeSegments ? 'active' : ''}"></span>`;
+      }).join('');
+
+      const row = document.createElement('div');
+      row.className = 'trait-row';
+      row.innerHTML = `
+        <span>${pair.left}</span>
+        <div class="trait-track">
+          <div class="segment-track">${segmentsMarkup}</div>
+        </div>
+        <span>${pair.right}</span>
+      `;
+      traitBars.appendChild(row);
+    });
+  }
+
+  function buildMbtiType() {
+    let type = '';
+    type += traits.E >= traits.I ? 'E' : 'I';
+    type += traits.S >= traits.N ? 'S' : 'N';
+    type += traits.T >= traits.F ? 'T' : 'F';
+    type += traits.J >= traits.P ? 'J' : 'P';
+    return type;
+  }
+
+  function getCareerRecommendation(type) {
+    const table = {
+      ENTJ: {
+        title: 'Commanding Visionary',
+        description: 'You thrive when building strategy, aligning teams, and driving measurable outcomes.',
+        careers: ['Entrepreneur', 'CEO', 'Business Strategist'],
+        growth: 'Practice active listening rituals to balance speed with empathy.'
+      },
+      ENFP: {
+        title: 'Creative Catalyst',
+        description: 'You connect ideas and people with magnetic energy and brand storytelling power.',
+        careers: ['Marketing Specialist', 'Brand Manager', 'Creative Director'],
+        growth: 'Use weekly execution checklists to convert ideas into repeatable wins.'
+      },
+      ISTJ: {
+        title: 'Reliable Architect',
+        description: 'You are detail-strong, process-driven, and trusted in high-accountability environments.',
+        careers: ['Finance Analyst', 'Operations Manager', 'Compliance Officer'],
+        growth: 'Schedule innovation sessions to explore better methods beyond proven systems.'
+      },
+      INFJ: {
+        title: 'Insightful Guide',
+        description: 'You blend strategic foresight with people-centered leadership and ethical depth.',
+        careers: ['HR Leader', 'Psychologist', 'Consultant'],
+        growth: 'Set boundaries on emotional labor to preserve your strategic clarity.'
+      },
+      INTP: {
+        title: 'Analytical Innovator',
+        description: 'You excel at systems thinking, problem deconstruction, and pattern discovery.',
+        careers: ['Data Analyst', 'Researcher', 'Product Intelligence Specialist'],
+        growth: 'Share early drafts often so insights influence decisions sooner.'
+      },
+      ESFP: {
+        title: 'Dynamic Connector',
+        description: 'You energize teams, engage customers, and create momentum in public-facing roles.',
+        careers: ['Sales Leader', 'Public Relations Manager', 'Community Partnerships Lead'],
+        growth: 'Track long-term goals weekly to pair spontaneity with sustained growth.'
+      }
+    };
+
+    if (table[type]) {
+      return table[type];
+    }
+
+    return {
+      title: 'Adaptive Leader',
+      description: 'You balance multiple leadership modes and adapt well to shifting business contexts.',
+      careers: ['Business Development', 'Project Leadership', 'Strategy Operations'],
+      growth: 'Review your decisions monthly to identify your strongest repeating leadership habits.'
+    };
+  }
+
+  function resetTraits() {
+    traits.E = 0;
+    traits.I = 0;
+    traits.S = 0;
+    traits.N = 0;
+    traits.T = 0;
+    traits.F = 0;
+    traits.J = 0;
+    traits.P = 0;
+  }
+})();

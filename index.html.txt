@@ -1,0 +1,103 @@
+index.html
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BizQuest – Discover Your Inner Leader</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <section id="welcome-screen" class="screen active">
+        <div class="gradient-layer"></div>
+        <div class="card glass welcome-card">
+          <h1>Welcome to BizQuest</h1>
+          <p>Your journey to self-discovery begins now.</p>
+          <button id="start-btn" class="btn primary">Click Me</button>
+        </div>
+      </section>
+
+      <section id="login-screen" class="screen" aria-hidden="true">
+        <div class="card glass">
+          <h2>Sign in to Begin</h2>
+          <p>Use Google to launch your leadership journey.</p>
+          <button id="google-login-btn" class="btn primary">Sign in with Google</button>
+          <p id="login-status" class="status-text"></p>
+        </div>
+      </section>
+
+      <section id="map-screen" class="screen" aria-hidden="true">
+        <div class="card glass map-card">
+          <div class="map-header">
+            <h2 id="player-greeting">Adventurer</h2>
+            <p>Leadership Journey Map</p>
+          </div>
+          <div class="progress-track" aria-label="Journey progress">
+            <div id="map-progress-fill" class="progress-fill"></div>
+          </div>
+          <div class="levels" id="levels-container"></div>
+          <p id="map-hint" class="status-text">Complete Level 1 to unlock the next zone.</p>
+        </div>
+      </section>
+
+      <section id="quiz-screen" class="screen" aria-hidden="true">
+        <div class="card glass quiz-card">
+          <div class="quiz-top-row">
+            <h2 id="quiz-level-title">Level</h2>
+            <div id="timer-chip" class="timer-chip hidden">10s</div>
+          </div>
+          <p id="question-counter"></p>
+          <p id="question-text" class="question-text"></p>
+          <div id="options-container" class="options-grid"></div>
+        </div>
+      </section>
+
+      <section id="result-screen" class="screen" aria-hidden="true">
+        <div class="confetti" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="card glass result-card">
+          <h2 id="result-title">Congratulations!</h2>
+          <p id="result-type" class="result-type"></p>
+          <p id="result-description"></p>
+
+          <div class="trait-bars" id="trait-bars"></div>
+
+          <div class="careers-block">
+            <h3>Recommended Career Paths</h3>
+            <ul id="career-list"></ul>
+          </div>
+
+          <div class="growth-block">
+            <h3>Growth Suggestion</h3>
+            <p id="growth-text"></p>
+          </div>
+
+          <button id="restart-btn" class="btn secondary">Restart Adventure</button>
+        </div>
+      </section>
+    </div>
+
+    <div id="name-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="name-modal-title">
+      <div class="card glass modal-card">
+        <h3 id="name-modal-title">Adventurer, what shall we call you?</h3>
+        <label for="player-name-input" class="sr-only">Your name</label>
+        <input id="player-name-input" type="text" maxlength="24" placeholder="Enter your name" />
+        <div class="modal-actions">
+          <button id="name-save-btn" class="btn primary">Save Name</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+  </body>
+</html>

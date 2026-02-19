@@ -1,0 +1,339 @@
+style.css
+
+:root {
+  --bg-1: #0f4c81;
+  --bg-2: #5b2a86;
+  --bg-3: #ffcb74;
+  --text: #eef3ff;
+  --card-bg: rgba(255, 255, 255, 0.14);
+  --card-border: rgba(255, 255, 255, 0.26);
+  --shadow: 0 18px 40px rgba(6, 10, 30, 0.25);
+  --accent: #7dd3fc;
+  --success: #86efac;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Poppins', sans-serif;
+  color: var(--text);
+  background: linear-gradient(135deg, var(--bg-1), var(--bg-2), var(--bg-3));
+  background-size: 240% 240%;
+  animation: gradientShift 12s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.app-shell {
+  min-height: 100vh;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.screen {
+  width: min(960px, 100%);
+  display: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  position: relative;
+}
+
+.screen.active {
+  display: block;
+  opacity: 1;
+}
+
+.gradient-layer {
+  position: absolute;
+  inset: -10px;
+  filter: blur(26px);
+  background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.2), transparent 60%);
+  pointer-events: none;
+}
+
+.glass {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+}
+
+.card {
+  padding: clamp(1rem, 4vw, 2rem);
+  position: relative;
+  z-index: 2;
+}
+
+.welcome-card,
+.map-card,
+.quiz-card,
+.result-card {
+  text-align: center;
+}
+
+.btn {
+  border: none;
+  border-radius: 999px;
+  padding: 0.8rem 1.4rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+.btn.primary {
+  background: linear-gradient(135deg, #38bdf8, #8b5cf6);
+  color: #fff;
+}
+
+.btn.secondary {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  color: #03120a;
+}
+
+.status-text {
+  margin-top: 0.8rem;
+  min-height: 1.4rem;
+}
+
+.progress-track {
+  margin: 1rem 0;
+  width: 100%;
+  height: 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.18);
+  overflow: hidden;
+}
+
+.progress-fill {
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #7dd3fc, #86efac);
+  transition: width 0.3s ease;
+}
+
+.levels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.9rem;
+}
+
+.level-btn {
+  width: 100%;
+  text-align: left;
+  padding: 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(7, 8, 25, 0.34);
+  color: var(--text);
+  transition: background 0.2s ease, border 0.2s ease;
+}
+
+.level-btn:not(:disabled):hover {
+  background: rgba(12, 16, 43, 0.6);
+  border-color: rgba(125, 211, 252, 0.8);
+}
+
+.level-btn:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
+.quiz-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.timer-chip {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font-weight: 700;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.options-grid {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 1rem;
+}
+
+.option-btn {
+  padding: 0.9rem;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--text);
+  border-radius: 12px;
+  text-align: left;
+}
+
+.option-btn:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.trait-bars {
+  margin: 1rem 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.trait-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.trait-track {
+  height: 10px;
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  overflow: hidden;
+  padding: 1px;
+}
+
+.segment-track {
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(20, 1fr);
+  gap: 1px;
+}
+
+.segment {
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.segment.active {
+  background: linear-gradient(90deg, #7dd3fc, #a78bfa);
+}
+
+.careers-block ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.careers-block li {
+  margin: 0.35rem 0;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 11, 30, 0.72);
+  display: grid;
+  place-items: center;
+  z-index: 12;
+}
+
+.modal-card {
+  width: min(420px, 92vw);
+}
+
+.modal input {
+  width: 100%;
+  margin-top: 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 10px;
+  padding: 0.75rem;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.modal input::placeholder {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.modal-actions {
+  margin-top: 0.9rem;
+  text-align: right;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  border: 0;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.confetti span {
+  position: absolute;
+  top: -20px;
+  width: 10px;
+  height: 16px;
+  opacity: 0.9;
+  animation: confettiFall 3s linear infinite;
+}
+
+.confetti span:nth-child(odd) { background: #fde047; }
+.confetti span:nth-child(even) { background: #60a5fa; }
+.confetti span:nth-child(3n) { background: #34d399; }
+
+.confetti span:nth-child(1) { left: 8%; animation-delay: 0s; }
+.confetti span:nth-child(2) { left: 16%; animation-delay: 0.3s; }
+.confetti span:nth-child(3) { left: 25%; animation-delay: 0.6s; }
+.confetti span:nth-child(4) { left: 36%; animation-delay: 0.9s; }
+.confetti span:nth-child(5) { left: 44%; animation-delay: 0.4s; }
+.confetti span:nth-child(6) { left: 53%; animation-delay: 1s; }
+.confetti span:nth-child(7) { left: 61%; animation-delay: 0.2s; }
+.confetti span:nth-child(8) { left: 70%; animation-delay: 0.7s; }
+.confetti span:nth-child(9) { left: 78%; animation-delay: 1.2s; }
+.confetti span:nth-child(10) { left: 85%; animation-delay: 0.5s; }
+.confetti span:nth-child(11) { left: 91%; animation-delay: 1.4s; }
+.confetti span:nth-child(12) { left: 96%; animation-delay: 0.8s; }
+
+@keyframes confettiFall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  100% {
+    transform: translateY(110vh) rotate(540deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .trait-row {
+    grid-template-columns: 35px 1fr 35px;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  .modal-actions {
+    text-align: center;
+  }
+}
