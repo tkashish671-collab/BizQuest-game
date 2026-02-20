@@ -122,7 +122,7 @@ let traits = {
     timerSeconds: 10
   };
 
-  startBtn.addEventListener('click', () => switchScreen('login'));
+  startBtn.addEventListener('click', () => switchScreen('map'));
 
   googleLoginBtn.addEventListener('click', async () => {
     loginStatus.textContent = 'Opening Google sign-in...';
@@ -441,4 +441,5 @@ let traits = {
     traits.P = 0;
   }
 })();
+
 
