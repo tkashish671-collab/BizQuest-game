@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { auth, db } from "./firebase";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { doc, setDoc, getDoc, collection, getDocs, orderBy, query } from "firebase/firestore";
+import { doc, setDoc, getDoc, collection } from "firebase/firestore";
 
 // ===================== DATA =====================
 const MOCK_STUDENTS = [
@@ -123,7 +123,6 @@ export default function App() {
   const [timerMode, setTimerMode] = useState(false);
   const [showNews, setShowNews] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
-  const [leaderboard, setLeaderboard] = useState([]);
   const timerRef = useRef(null);
 
   // Teacher
