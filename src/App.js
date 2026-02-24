@@ -205,23 +205,6 @@ export default function App() {
     }
   }, [ad, digital, influencer, budget, difficulty, audience, year, results, playerName, orgName]);
 
-  // Leaderboard fetch
-  useEffect(() => {
-    if (activePage === "leaderboard") {
-      const loadLeaderboard = async () => {
-        try {
-          const snap = await getDocs(collection(db, "leaderboard"));
-          const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-          data.sort((a, b) => b.score - a.score);
-          setLeaderboard(data);
-        } catch (e) {
-          console.log("Leaderboard fetch error:", e);
-        }
-      };
-      loadLeaderboard();
-    }
-  }, [activePage]);
-
   // Timer
   useEffect(() => {
     if (timerActive && timeLeft > 0) {
@@ -269,13 +252,13 @@ export default function App() {
     topBar: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "30px" },
     topBarTitle: { fontSize: "24px", fontWeight: "700", color: t.text, fontFamily: t.font },
     topBarRight: { display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" },
-    dropdown: { padding: "10px 14px", background: t.dropdown, border: `1px solid ${t.inputBorder}`, borderRadius: "10px", color: t.text, fontSize: "13px", cursor: "pointer", outline: "none", fontFamily: t.font },
+    dropdown: { padding: "10px 14px", background: t.dropdown, border: `1px solid ${t.inputBorder}`, borderRadius: "10px", color: t.text, fontSize: "13px", cursor: "pointer", outline: "none", fontFamily: t.font, colorScheme: darkMode ? "dark" : "light" },
     darkBtn: { padding: "10px 14px", background: darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)", border: `1px solid ${t.inputBorder}`, borderRadius: "10px", fontSize: "16px", cursor: "pointer", color: t.text, fontFamily: t.font },
     teacherBtn: { padding: "10px 16px", background: "linear-gradient(135deg, rgba(162,155,254,0.2), rgba(116,185,255,0.2))", border: "1px solid rgba(162,155,254,0.4)", borderRadius: "10px", color: "#a29bfe", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: t.font },
     card: { background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: "16px", padding: "24px", marginBottom: "20px" },
     scenarioCard: { background: darkMode ? "linear-gradient(135deg, rgba(247,201,72,0.08), rgba(255,107,107,0.05))" : "linear-gradient(135deg, rgba(247,201,72,0.2), rgba(255,107,107,0.1))", border: "1px solid rgba(247,201,72,0.2)", borderRadius: "16px", padding: "24px", marginBottom: "20px" },
     input: { width: "100%", padding: "12px", background: t.input, border: `1px solid ${t.inputBorder}`, borderRadius: "8px", color: t.text, fontSize: "15px", outline: "none", boxSizing: "border-box", fontFamily: t.font },
-    select: { width: "100%", padding: "10px", background: t.select, border: `1px solid ${t.inputBorder}`, borderRadius: "8px", color: t.text, fontSize: "14px", outline: "none", cursor: "pointer", boxSizing: "border-box", fontFamily: t.font },
+    select: { width: "100%", padding: "10px", background: t.select, border: `1px solid ${t.inputBorder}`, borderRadius: "8px", color: t.text, fontSize: "14px", outline: "none", cursor: "pointer", boxSizing: "border-box", fontFamily: t.font, colorScheme: darkMode ? "dark" : "light" },
     nextBtn: { width: "100%", padding: "16px", background: "linear-gradient(135deg, #f7c948, #ff9f43)", border: "none", borderRadius: "12px", fontSize: "16px", fontWeight: "700", color: "#000", cursor: "pointer", fontFamily: t.font, letterSpacing: "1px" },
     startBtn: { padding: "14px 36px", background: "linear-gradient(135deg, #f7c948, #ff6b6b)", border: "none", borderRadius: "14px", fontSize: "16px", fontWeight: "800", color: "#000", cursor: "pointer", fontFamily: t.font },
     inputCard: { background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: "12px", padding: "16px" },
@@ -748,23 +731,16 @@ export default function App() {
     );
 
     if (activePage === "leaderboard") {
-      const lbData = leaderboard.length > 0 ? leaderboard : MOCK_STUDENTS;
+      const allPlayers = totalScore > 0
+        ? [...MOCK_STUDENTS, { name: playerName, org: orgName, score: totalScore, profit: totalProfit, difficulty }]
+        : MOCK_STUDENTS;
+      const sorted = [...allPlayers].sort((a, b) => b.score - a.score);
       return (
         <div>
           <TopBar title="🏆 Leaderboard" />
           <div style={S.card}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-              <h3 style={{ color: "#f7c948", margin: 0 }}>🌍 Live Global Rankings</h3>
-              <button style={{ ...S.darkBtn, fontSize: "13px" }} onClick={async () => {
-                try {
-                  const snap = await getDocs(collection(db, "leaderboard"));
-                  const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                  setLeaderboard(data.sort((a, b) => b.score - a.score));
-                } catch(e) { console.log(e); }
-              }}>🔄 Refresh</button>
-            </div>
-            {leaderboard.length === 0 && <p style={{ color: t.textMuted, textAlign: "center", padding: "20px" }}>⏳ Loading rankings...</p>}
-            {lbData.map((p, i) => (
+            <h3 style={{ color: "#f7c948", marginBottom: "16px" }}>🏆 Top Bosses — {difficulty}</h3>
+            {sorted.map((p, i) => (
               <div key={i} style={{ ...S.resultRow, background: p.name === playerName ? "rgba(247,201,72,0.08)" : "transparent", border: p.name === playerName ? "1px solid rgba(247,201,72,0.3)" : `1px solid ${t.cardBorder}` }}>
                 <span style={{ fontSize: "20px" }}>{i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i+1}`}</span>
                 <span style={{ fontWeight: "700", color: p.name === playerName ? "#f7c948" : t.text }}>{p.name} {p.name === playerName ? "👈 You" : ""}</span>
