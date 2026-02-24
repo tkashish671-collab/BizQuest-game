@@ -732,7 +732,7 @@ export default function App() {
 
     if (activePage === "leaderboard") {
       const loadLeaderboard = async () => {
-        const q = query(collection(db, "leaderboard"), orderBy("score", "desc"));
+        const q = query(collection(db, "leaderboard"));
         const snap = await getDocs(q);
         const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         setLeaderboard(data);
@@ -746,7 +746,7 @@ export default function App() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
               <h3 style={{ color: "#f7c948", margin: 0 }}>🌍 Live Global Rankings</h3>
               <button style={{ ...S.darkBtn, fontSize: "13px" }} onClick={async () => {
-                const q = query(collection(db, "leaderboard"), orderBy("score", "desc"));
+                const q = query(collection(db, "leaderboard"));
                 const snap = await getDocs(q);
                 setLeaderboard(snap.docs.map(d => ({ id: d.id, ...d.data() })));
               }}>🔄 Refresh</button>
