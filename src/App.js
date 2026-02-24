@@ -205,6 +205,23 @@ export default function App() {
     }
   }, [ad, digital, influencer, budget, difficulty, audience, year, results, playerName, orgName]);
 
+  // Leaderboard fetch
+  useEffect(() => {
+    if (activePage === "leaderboard") {
+      const loadLeaderboard = async () => {
+        try {
+          const snap = await getDocs(collection(db, "leaderboard"));
+          const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          data.sort((a, b) => b.score - a.score);
+          setLeaderboard(data);
+        } catch (e) {
+          console.log("Leaderboard fetch error:", e);
+        }
+      };
+      loadLeaderboard();
+    }
+  }, [activePage]);
+
   // Timer
   useEffect(() => {
     if (timerActive && timeLeft > 0) {
@@ -731,13 +748,6 @@ export default function App() {
     );
 
     if (activePage === "leaderboard") {
-      const loadLeaderboard = async () => {
-        const q = query(collection(db, "leaderboard"));
-        const snap = await getDocs(q);
-        const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        setLeaderboard(data);
-      };
-      if (leaderboard.length === 0) loadLeaderboard();
       const lbData = leaderboard.length > 0 ? leaderboard : MOCK_STUDENTS;
       return (
         <div>
@@ -746,19 +756,22 @@ export default function App() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
               <h3 style={{ color: "#f7c948", margin: 0 }}>🌍 Live Global Rankings</h3>
               <button style={{ ...S.darkBtn, fontSize: "13px" }} onClick={async () => {
-                const q = query(collection(db, "leaderboard"));
-                const snap = await getDocs(q);
-                setLeaderboard(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+                try {
+                  const snap = await getDocs(collection(db, "leaderboard"));
+                  const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                  setLeaderboard(data.sort((a, b) => b.score - a.score));
+                } catch(e) { console.log(e); }
               }}>🔄 Refresh</button>
             </div>
-            {lbData.sort((a, b) => b.score - a.score).map((p, i) => (
+            {leaderboard.length === 0 && <p style={{ color: t.textMuted, textAlign: "center", padding: "20px" }}>⏳ Loading rankings...</p>}
+            {lbData.map((p, i) => (
               <div key={i} style={{ ...S.resultRow, background: p.name === playerName ? "rgba(247,201,72,0.08)" : "transparent", border: p.name === playerName ? "1px solid rgba(247,201,72,0.3)" : `1px solid ${t.cardBorder}` }}>
                 <span style={{ fontSize: "20px" }}>{i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i+1}`}</span>
                 <span style={{ fontWeight: "700", color: p.name === playerName ? "#f7c948" : t.text }}>{p.name} {p.name === playerName ? "👈 You" : ""}</span>
                 <span style={{ color: t.textMuted, fontSize: "13px" }}>{p.org}</span>
                 <span style={S.tag("#74b9ff")}>{p.difficulty || "Easy"}</span>
                 <span style={S.tag("#a29bfe")}>Score: {p.score}</span>
-                <span style={{ color: p.profit >= 0 ? "#00ff88" : "#ff4b4b", fontWeight: "700" }}>₹{(p.profit || 0).toLocaleString()}</span>
+                <span style={{ color: (p.profit || 0) >= 0 ? "#00ff88" : "#ff4b4b", fontWeight: "700" }}>₹{(p.profit || 0).toLocaleString()}</span>
               </div>
             ))}
           </div>
